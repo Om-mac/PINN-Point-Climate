@@ -9,8 +9,22 @@ import pandas as pd
 import numpy as np
 from scipy.spatial import distance
 from weather_api import fetch_real_precipitation
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
+
+# Get API keys from environment variables
+GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
+VISUALCROSSING_API_KEY = os.getenv('VISUALCROSSING_API_KEY')
+
+if not GOOGLE_MAPS_API_KEY:
+    raise ValueError("GOOGLE_MAPS_API_KEY not found in environment variables. Please set it in .env file.")
+if not VISUALCROSSING_API_KEY:
+    raise ValueError("VISUALCROSSING_API_KEY not found in environment variables. Please set it in .env file.")
 
 # Load the trained model
 with open('models/flood_prediction_rf.pkl', 'rb') as f:
@@ -122,8 +136,8 @@ def prepare_features_for_prediction(station_data, recent_precipitation):
 
 @app.route('/')
 def index():
-    """Render the main map interface."""
-    return render_template('map_interface.html')
+    """Render the main map interface with API key."""
+    return render_template('map_interface.html', google_maps_api_key=GOOGLE_MAPS_API_KEY)
 
 
 @app.route('/api/stations')
